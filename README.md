@@ -14,3 +14,8 @@ run:-
 cd C:\Users\Dell\Pictures\smart_attendance\smart_attendance_system
 venv\Scripts\activate
 python app.py
+http://127.0.0.1:5000/techer
+http://127.0.0.1:5000/student/name
+git add .
+git commit -m "Add project files excluding venv"
+git push origin main
