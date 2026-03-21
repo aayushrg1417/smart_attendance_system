@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teacher Dashboard</title>
+</head>
+<body>
+
+<h2>Teacher Dashboard</h2>
+
+<input type="file" id="imageInput">
+<button onclick="uploadImage()">Mark Attendance</button>
+
+<h3>Present Students:</h3>
+<ul id="presentList"></ul>
+
+<script>
+async function uploadImage() {
+    let fileInput = document.getElementById("imageInput");
+
+    let formData = new FormData();
+    formData.append("image", fileInput.files[0]);
+
+    let res = await fetch("/mark_attendance", {
+        method: "POST",
+        body: formData
+    });
+
+    let data = await res.json();
+
+    let list = document.getElementById("presentList");
+    list.innerHTML = "";
+
+    data.present.forEach(name => {
+        let li = document.createElement("li");
+        li.innerText = name;
+        list.appendChild(li);
+    });
+}
+</script>
+
+</body>
+</html>
