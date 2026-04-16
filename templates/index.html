@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #0f172a;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .box {
+            background: #020617;
+            padding: 30px;
+            border-radius: 12px;
+            width: 300px;
+        }
+
+        input, select {
+            width: 100%;
+            margin: 5px 0;
+            padding: 8px;
+            background: #1e293b;
+            border: none;
+            color: white;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background: #38bdf8;
+            border: none;
+        }
+
+        .toggle {
+            margin-top: 10px;
+            text-align: center;
+            cursor: pointer;
+            color: #38bdf8;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <!-- LOGIN -->
+    <div id="loginBox">
+        <h2>Login</h2>
+        <form method="POST" action="/login">
+            <input name="username" placeholder="Username" required>
+            <input name="password" type="password" placeholder="Password" required>
+            <button>Login</button>
+        </form>
+
+        <div class="toggle" onclick="toggle()">Create account</div>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="registerBox" style="display:none;">
+        <h2>Register</h2>
+        <form method="POST" action="/register">
+            <input name="name" placeholder="Name" required>
+            <input name="username" placeholder="Username" required>
+            <input name="password" type="password" placeholder="Password" required>
+
+            <select name="role">
+                <option value="teacher">Teacher</option>
+                <option value="student">Student</option>
+            </select>
+
+            <button>Register</button>
+        </form>
+
+        <div class="toggle" onclick="toggle()">Back to login</div>
+    </div>
+
+</div>
+
+<script>
+function toggle() {
+    let login = document.getElementById("loginBox");
+    let register = document.getElementById("registerBox");
+
+    login.style.display = login.style.display === "none" ? "block" : "none";
+    register.style.display = register.style.display === "none" ? "block" : "none";
+}
+</script>
+
+</body>
+</html>

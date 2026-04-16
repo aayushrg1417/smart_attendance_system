@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify
+from flask import session, redirect, url_for
 from engine.face_engine import process_class_image
 from database.db import conn, cursor
 from datetime import date
@@ -6,11 +7,13 @@ import os
 
 app = Flask(__name__)
 
+app.secret_key = "secret123"
+
 
 # 🏠 Home
 @app.route("/")
 def home():
-    return "<h2>Smart Attendance System Running</h2>"
+    return render_template("index.html")
 
 
 # 👨‍🏫 Teacher Page
@@ -31,6 +34,54 @@ def student_page(name):
     records = [str(r[0]) for r in records]
 
     return render_template("student.html", name=name, records=records)
+
+# Register
+@app.route("/register", methods=["POST"])
+def register():
+    name = request.form["name"]
+    username = request.form["username"]
+    password = request.form["password"]
+    role = request.form["role"]
+
+    cursor.execute(
+        "INSERT INTO users (name, username, password, role) VALUES (%s, %s, %s, %s)",
+        (name, username, password, role)
+    )
+    conn.commit()
+
+    return redirect("/")
+
+#login
+@app.route("/login", methods=["POST"])
+def login():
+    username = request.form["username"]
+    password = request.form["password"]
+
+    cursor.execute(
+        "SELECT * FROM users WHERE username=%s AND password=%s",
+        (username, password)
+    )
+
+    user = cursor.fetchone()
+
+    if user:
+        session["user"] = user[1]
+        session["role"] = user[4]
+
+        if user[4] == "teacher":
+            return redirect("/teacher")
+        else:
+            return redirect(f"/student/{user[1]}")
+    else:
+        return "Invalid Login"
+    
+   
+#logout
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
+    
 
 
 # 📸 Mark Attendance

@@ -1,24 +1,159 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Teacher Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 30px;
+            background: #020617;
+        }
+
+        .nav-links a {
+            margin-left: 20px;
+            color: #94a3b8;
+            text-decoration: none;
+        }
+
+        .nav-links a:hover {
+            color: #38bdf8;
+        }
+
+        .ads-box {
+            background: linear-gradient(90deg, #6366f1, #22c55e);
+            padding: 10px;
+            text-align: center;
+            color: white;
+        }
+
+        .container {
+            padding: 40px;
+            max-width: 700px;
+            margin: auto;
+        }
+
+        .card {
+            background: #020617;
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid #1e293b;
+            margin-bottom: 20px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: none;
+            background: #1e293b;
+            color: white;
+        }
+
+        button {
+            background: #38bdf8;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: #1e293b;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 8px;
+        }
+    </style>
 </head>
+
 <body>
 
-<h2>Teacher Dashboard</h2>
+<div class="ads-box">
+    🚀 Smart Attendance Pro | AI Reports Coming Soon
+</div>
 
-<input type="file" id="imageInput">
-<button onclick="uploadImage()">Mark Attendance</button>
+<div class="navbar">
+    <h3>SmartAttend</h3>
+    <div class="nav-links">
+        <a href="/teacher">Teacher</a>
+        <a href="/">Home</a>
+        <a href="/logout"><button>Logout</button></a>
+    </div>
+</div>
 
-<h3>Present Students:</h3>
-<ul id="presentList"></ul>
+<div class="container">
+
+    <h2>👨‍🏫 Teacher Dashboard</h2>
+
+    <!-- 📅 DATE + INFO -->
+    <div class="card">
+        <h3>📅 Session Info</h3>
+        <p id="date"></p>
+
+        <label>Subject</label>
+        <input type="text" id="subject" placeholder="Enter subject">
+
+        <label>Lecture Type</label>
+        <select id="lectureType">
+            <option>Regular</option>
+            <option>Extra</option>
+        </select>
+    </div>
+
+    <!-- 📤 UPLOAD -->
+    <div class="card">
+        <input type="file" id="imageInput">
+        <button onclick="uploadImage()">Mark Attendance</button>
+        <p id="loading"></p>
+    </div>
+
+    <!-- 📋 RESULTS -->
+    <div class="card">
+        <h3>✅ Present Students</h3>
+        <ul id="presentList"></ul>
+    </div>
+
+</div>
 
 <script>
+document.getElementById("date").innerText =
+    "Today: " + new Date().toDateString();
+
 async function uploadImage() {
     let fileInput = document.getElementById("imageInput");
+    let loading = document.getElementById("loading");
+
+    let subject = document.getElementById("subject").value;
+    let lectureType = document.getElementById("lectureType").value;
+
+    if (!fileInput.files[0]) {
+        alert("Select image first");
+        return;
+    }
+
+    loading.innerText = "Processing...";
 
     let formData = new FormData();
     formData.append("image", fileInput.files[0]);
+    formData.append("subject", subject);
+    formData.append("lectureType", lectureType);
 
     let res = await fetch("/mark_attendance", {
         method: "POST",
@@ -27,12 +162,14 @@ async function uploadImage() {
 
     let data = await res.json();
 
+    loading.innerText = "";
+
     let list = document.getElementById("presentList");
     list.innerHTML = "";
 
     data.present.forEach(name => {
         let li = document.createElement("li");
-        li.innerText = name;
+        li.innerText = "✔ " + name;
         list.appendChild(li);
     });
 }

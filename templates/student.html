@@ -1,20 +1,225 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Student Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 30px;
+            background: #020617;
+        }
+
+        .nav-links a {
+            margin-left: 20px;
+            color: #94a3b8;
+            text-decoration: none;
+        }
+
+        .nav-links a:hover {
+            color: #38bdf8;
+        }
+
+        .ads-box {
+            background: linear-gradient(90deg, #6366f1, #22c55e);
+            padding: 10px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .container {
+            padding: 40px;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .card {
+            background: #020617;
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid #1e293b;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 12px;
+            flex: 1;
+            text-align: center;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .good { background: #22c55e; }
+        .low { background: #ef4444; }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: #1e293b;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            border-radius: 8px;
+            border: none;
+            background: #1e293b;
+            color: white;
+            padding: 10px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            background: #38bdf8;
+            cursor: pointer;
+        }
+
+        .empty {
+            text-align: center;
+            color: #64748b;
+        }
+    </style>
 </head>
+
 <body>
 
-<h2>Student Dashboard</h2>
+<div class="ads-box">
+    📊 Stay above 75% attendance to avoid trouble 🚀
+</div>
 
-<h3>Name: {{ name }}</h3>
+<div class="navbar">
+    <h3>SmartAttend</h3>
+    <div class="nav-links">
+        <a href="/teacher">Teacher</a>
+        <a href="/">Home</a>
+        <a href="/logout"><button>Logout</button></a>
+    </div>
+</div>
 
-<h3>Attendance Records:</h3>
-<ul>
-    {% for day in records %}
-        <li>{{ day }}</li>
-    {% endfor %}
-</ul>
+<div class="container">
+
+    <!-- 👤 INFO -->
+    <div class="card">
+        <h2>🎓 {{ name }}</h2>
+        <p id="date"></p>
+        <span id="statusBadge" class="badge"></span>
+    </div>
+
+    <!-- 📊 STATS -->
+    <div class="card">
+        <h3>📊 Attendance Summary</h3>
+
+        <div class="stats">
+            <div class="stat-box">
+                <h2 id="totalClasses">0</h2>
+                <p>Total Classes</p>
+            </div>
+
+            <div class="stat-box">
+                <h2 id="presentCount">0</h2>
+                <p>Present</p>
+            </div>
+
+            <div class="stat-box">
+                <h2 id="percentage">0%</h2>
+                <p>Attendance %</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📅 RECORDS -->
+    <div class="card">
+        <h3>📅 Attendance Records</h3>
+
+        {% if records|length == 0 %}
+            <p class="empty">No attendance data yet</p>
+        {% else %}
+            <ul>
+                {% for day in records %}
+                    <li>✔ {{ day }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+    <!-- 📝 NOTES -->
+    <div class="card">
+        <h3>📝 Personal Notes</h3>
+        <textarea id="notes"></textarea>
+        <button onclick="saveNotes()">Save Notes</button>
+    </div>
+
+</div>
+
+<script>
+    // 📅 Date
+    document.getElementById("date").innerText =
+        "Today: " + new Date().toDateString();
+
+    // 📊 Stats
+    let records = {{ records|length }};
+    let totalClasses = records; // will improve later
+
+    document.getElementById("totalClasses").innerText = totalClasses;
+    document.getElementById("presentCount").innerText = records;
+
+    let percent = totalClasses === 0 ? 0 : (records / totalClasses) * 100;
+    document.getElementById("percentage").innerText = percent.toFixed(1) + "%";
+
+    // 🚦 Status Badge
+    let badge = document.getElementById("statusBadge");
+
+    if (percent >= 75) {
+        badge.innerText = "Good Standing ✅";
+        badge.classList.add("good");
+    } else {
+        badge.innerText = "Low Attendance ⚠️";
+        badge.classList.add("low");
+    }
+
+    // 📝 Notes (Local Storage)
+    let notesField = document.getElementById("notes");
+
+    // Load notes
+    notesField.value = localStorage.getItem("notes") || "";
+
+    function saveNotes() {
+        localStorage.setItem("notes", notesField.value);
+        alert("Notes saved!");
+    }
+</script>
 
 </body>
 </html>
