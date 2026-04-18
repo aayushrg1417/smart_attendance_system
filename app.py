@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from flask import session, redirect, url_for
-from engine.face_engine import process_class_image
+from engine.video_engine import process_video
 from database.db import conn, cursor
 from datetime import date
 import os
@@ -25,15 +25,25 @@ def teacher_page():
 # 🎓 Student Page
 @app.route("/student/<name>")
 def student_page(name):
+
+    # 📊 Attendance data
     cursor.execute(
         "SELECT date FROM attendance WHERE student_name = %s",
         (name,)
     )
     records = cursor.fetchall()
-
     records = [str(r[0]) for r in records]
 
-    return render_template("student.html", name=name, records=records)
+    # 👤 User details
+    cursor.execute(
+        "SELECT name, username, email, phone, department, profile_img FROM users WHERE username=%s",
+        (name,)
+    )
+    user = cursor.fetchone()
+
+    print("USER DATA:", user)  # 🔍 debug
+
+    return render_template("student.html", name=name, records=records, user=user)
 
 # Register
 @app.route("/register", methods=["POST"])
@@ -87,31 +97,44 @@ def logout():
 # 📸 Mark Attendance
 @app.route("/mark_attendance", methods=["POST"])
 def mark_attendance():
-    file = request.files["image"]
 
-    # ensure folder exists
-    if not os.path.exists("class_images"):
-        os.makedirs("class_images")
+    file = request.files["video"]
+    subject = request.form.get("subject")
+    lecture_type = request.form.get("lectureType")
+    start_time = request.form.get("startTime")
+    end_time = request.form.get("endTime")
 
-    image_path = "class_images/temp.jpg"
-    file.save(image_path)
+    # create folder
+    if not os.path.exists("videos"):
+        os.makedirs("videos")
 
-    present_students = process_class_image(image_path)
+    video_path = f"videos/{file.filename}"
+    file.save(video_path)
+
+    # 🔥 process video
+    present_students = process_video(video_path)
 
     today = date.today()
 
     for student in present_students:
 
-        # avoid duplicate entry
         cursor.execute(
-            "SELECT * FROM attendance WHERE student_name=%s AND date=%s",
-            (student, today)
+            """
+            SELECT * FROM attendance 
+            WHERE student_name=%s AND date=%s AND subject=%s 
+            AND start_time=%s AND end_time=%s
+            """,
+            (student, today, subject, start_time, end_time)
         )
 
         if not cursor.fetchone():
             cursor.execute(
-                "INSERT INTO attendance (student_name, date) VALUES (%s, %s)",
-                (student, today)
+                """
+                INSERT INTO attendance 
+                (student_name, date, subject, lecture_type, start_time, end_time, video_path) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """,
+                (student, today, subject, lecture_type, start_time, end_time, video_path)
             )
 
     conn.commit()

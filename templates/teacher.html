@@ -12,6 +12,14 @@
             color: #e2e8f0;
         }
 
+        .ads-box {
+            background: linear-gradient(90deg, #f59e0b, #ef4444);
+            padding: 10px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+        }
+
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -29,16 +37,9 @@
             color: #38bdf8;
         }
 
-        .ads-box {
-            background: linear-gradient(90deg, #6366f1, #22c55e);
-            padding: 10px;
-            text-align: center;
-            color: white;
-        }
-
         .container {
-            padding: 40px;
-            max-width: 700px;
+            padding: 30px;
+            max-width: 900px;
             margin: auto;
         }
 
@@ -50,6 +51,38 @@
             margin-bottom: 20px;
         }
 
+        /* 👤 PROFILE */
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .profile img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #38bdf8;
+        }
+
+        .profile-placeholder {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        .details p {
+            margin: 4px 0;
+            font-size: 14px;
+        }
+
+        /* 📸 Upload */
         input, select {
             width: 100%;
             padding: 10px;
@@ -61,14 +94,16 @@
         }
 
         button {
-            background: #38bdf8;
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
             margin-top: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: #38bdf8;
             cursor: pointer;
+            width: 100%;
         }
 
+        /* 📋 List */
         ul {
             list-style: none;
             padding: 0;
@@ -76,9 +111,14 @@
 
         li {
             background: #1e293b;
-            padding: 8px;
+            padding: 10px;
             margin: 5px 0;
             border-radius: 8px;
+        }
+
+        .empty {
+            text-align: center;
+            color: #64748b;
         }
     </style>
 </head>
@@ -86,74 +126,90 @@
 <body>
 
 <div class="ads-box">
-    🚀 Smart Attendance Pro | AI Reports Coming Soon
+    📸 Upload class video to mark attendance instantly 🚀
 </div>
 
 <div class="navbar">
     <h3>SmartAttend</h3>
     <div class="nav-links">
-        <a href="/teacher">Teacher</a>
         <a href="/">Home</a>
-        <a href="/logout"><button>Logout</button></a>
+        <a href="/logout">Logout</a>
     </div>
 </div>
 
 <div class="container">
 
-    <h2>👨‍🏫 Teacher Dashboard</h2>
-
-    <!-- 📅 DATE + INFO -->
+    <!-- 👤 PROFILE -->
     <div class="card">
-        <h3>📅 Session Info</h3>
-        <p id="date"></p>
+        <div class="profile">
 
-        <label>Subject</label>
-        <input type="text" id="subject" placeholder="Enter subject">
+            {% if user and user[5] %}
+                <img src="/{{ user[5] }}">
+            {% else %}
+                <div class="profile-placeholder">👨‍🏫</div>
+            {% endif %}
 
-        <label>Lecture Type</label>
+            <div class="details">
+                <h2>👨‍🏫 {{ user[0] if user else "Teacher" }}</h2>
+
+                <p><b>Username:</b> {{ user[1] if user else "" }}</p>
+                <p><b>Email:</b> {{ user[2] if user else "Not set" }}</p>
+                <p><b>Phone:</b> {{ user[3] if user else "Not set" }}</p>
+                <p><b>Department:</b> {{ user[4] if user else "Not set" }}</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 📸 ATTENDANCE UPLOAD -->
+    <div class="card">
+        <h3>📸 Mark Attendance</h3>
+
+        <input type="file" id="videoInput" accept="video/*">
+
+        <input type="text" id="subject" placeholder="Enter Subject">
+        <input type="time" id="startTime">
+        <input type="time" id="endTime">
+
         <select id="lectureType">
-            <option>Regular</option>
-            <option>Extra</option>
+            <option value="Regular">Regular Lecture</option>
+            <option value="Extra">Extra Lecture</option>
         </select>
+
+        <button onclick="uploadImage()">Upload Video & Mark Attendance</button>
     </div>
 
-    <!-- 📤 UPLOAD -->
+    <!-- 📋 RESULT -->
     <div class="card">
-        <input type="file" id="imageInput">
-        <button onclick="uploadImage()">Mark Attendance</button>
-        <p id="loading"></p>
-    </div>
+        <h3>📋 Present Students</h3>
 
-    <!-- 📋 RESULTS -->
-    <div class="card">
-        <h3>✅ Present Students</h3>
         <ul id="presentList"></ul>
+
+        <p id="emptyMsg" class="empty">No attendance marked yet</p>
     </div>
 
 </div>
 
 <script>
-document.getElementById("date").innerText =
-    "Today: " + new Date().toDateString();
-
 async function uploadImage() {
-    let fileInput = document.getElementById("imageInput");
-    let loading = document.getElementById("loading");
 
+    let fileInput = document.getElementById("videoInput");
     let subject = document.getElementById("subject").value;
     let lectureType = document.getElementById("lectureType").value;
+    let startTime = document.getElementById("startTime").value;
+    let endTime = document.getElementById("endTime").value;
 
     if (!fileInput.files[0]) {
-        alert("Select image first");
+        alert("Please upload a video!");
         return;
     }
 
-    loading.innerText = "Processing...";
-
     let formData = new FormData();
-    formData.append("image", fileInput.files[0]);
+    formData.append("video", fileInput.files[0]);
     formData.append("subject", subject);
     formData.append("lectureType", lectureType);
+    formData.append("startTime", startTime);
+    formData.append("endTime", endTime);
 
     let res = await fetch("/mark_attendance", {
         method: "POST",
@@ -162,10 +218,17 @@ async function uploadImage() {
 
     let data = await res.json();
 
-    loading.innerText = "";
-
     let list = document.getElementById("presentList");
+    let emptyMsg = document.getElementById("emptyMsg");
+
     list.innerHTML = "";
+
+    if (!data.present || data.present.length === 0) {
+        emptyMsg.style.display = "block";
+        return;
+    }
+
+    emptyMsg.style.display = "none";
 
     data.present.forEach(name => {
         let li = document.createElement("li");

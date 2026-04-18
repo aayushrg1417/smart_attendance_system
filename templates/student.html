@@ -12,6 +12,14 @@
             color: #e2e8f0;
         }
 
+        .ads-box {
+            background: linear-gradient(90deg, #6366f1, #22c55e);
+            padding: 10px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+        }
+
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -29,17 +37,9 @@
             color: #38bdf8;
         }
 
-        .ads-box {
-            background: linear-gradient(90deg, #6366f1, #22c55e);
-            padding: 10px;
-            text-align: center;
-            color: white;
-            font-weight: bold;
-        }
-
         .container {
-            padding: 40px;
-            max-width: 800px;
+            padding: 30px;
+            max-width: 900px;
             margin: auto;
         }
 
@@ -51,6 +51,49 @@
             margin-bottom: 20px;
         }
 
+        /* 👤 PROFILE */
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .profile img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #38bdf8;
+        }
+
+        .profile-placeholder {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        .details p {
+            margin: 4px 0;
+            font-size: 14px;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .good { background: #22c55e; }
+        .low { background: #ef4444; }
+
+        /* 📊 STATS */
         .stats {
             display: flex;
             gap: 10px;
@@ -65,16 +108,7 @@
             text-align: center;
         }
 
-        .badge {
-            padding: 5px 10px;
-            border-radius: 8px;
-            font-size: 12px;
-            margin-left: 10px;
-        }
-
-        .good { background: #22c55e; }
-        .low { background: #ef4444; }
-
+        /* 📅 RECORDS */
         ul {
             list-style: none;
             padding: 0;
@@ -87,6 +121,12 @@
             border-radius: 8px;
         }
 
+        .empty {
+            text-align: center;
+            color: #64748b;
+        }
+
+        /* 📝 NOTES */
         textarea {
             width: 100%;
             height: 100px;
@@ -105,11 +145,6 @@
             background: #38bdf8;
             cursor: pointer;
         }
-
-        .empty {
-            text-align: center;
-            color: #64748b;
-        }
     </style>
 </head>
 
@@ -122,19 +157,37 @@
 <div class="navbar">
     <h3>SmartAttend</h3>
     <div class="nav-links">
-        <a href="/teacher">Teacher</a>
         <a href="/">Home</a>
-        <a href="/logout"><button>Logout</button></a>
+        <a href="/details">Personal Details</a>
+        <a href="/logout">Logout</a>
     </div>
 </div>
 
 <div class="container">
 
-    <!-- 👤 INFO -->
+    <!-- 👤 PROFILE -->
     <div class="card">
-        <h2>🎓 {{ name }}</h2>
-        <p id="date"></p>
-        <span id="statusBadge" class="badge"></span>
+        <div class="profile">
+
+            {% if user and user[5] %}
+                <img src="/{{ user[5] }}">
+            {% else %}
+                <div class="profile-placeholder">👤</div>
+            {% endif %}
+
+            <div class="details">
+                <h2>🎓 {{ user[0] if user else name }}</h2>
+
+                <p><b>Username:</b> {{ user[1] if user else name }}</p>
+                <p><b>Email:</b> {{ user[2] if user else "Not set" }}</p>
+                <p><b>Phone:</b> {{ user[3] if user else "Not set" }}</p>
+                <p><b>Department:</b> {{ user[4] if user else "Not set" }}</p>
+
+                <p id="date"></p>
+                <span id="statusBadge" class="badge"></span>
+            </div>
+
+        </div>
     </div>
 
     <!-- 📊 STATS -->
@@ -190,7 +243,7 @@
 
     // 📊 Stats
     let records = {{ records|length }};
-    let totalClasses = records; // will improve later
+    let totalClasses = records;
 
     document.getElementById("totalClasses").innerText = totalClasses;
     document.getElementById("presentCount").innerText = records;
@@ -209,10 +262,8 @@
         badge.classList.add("low");
     }
 
-    // 📝 Notes (Local Storage)
+    // 📝 Notes
     let notesField = document.getElementById("notes");
-
-    // Load notes
     notesField.value = localStorage.getItem("notes") || "";
 
     function saveNotes() {
