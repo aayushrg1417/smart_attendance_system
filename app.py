@@ -360,24 +360,33 @@ def logout():
 @app.route("/mark_attendance", methods=["POST"])
 def mark_attendance():
 
-    file = request.files["video"]
+    file = request.files.get("file")   # 🔥 unified input
+
     subject = request.form.get("subject")
     lecture_type = request.form.get("lectureType")
     start_time = request.form.get("startTime")
     end_time = request.form.get("endTime")
 
-    # create folder
-    if not os.path.exists("videos"):
-        os.makedirs("videos")
+    if not file:
+        return "No file uploaded"
 
-    video_path = f"videos/{file.filename}"
-    file.save(video_path)
+    # 📁 create folders
+    if not os.path.exists("uploads"):
+        os.makedirs("uploads")
 
-    # load images from DB
+    file_path = os.path.join("uploads", file.filename)
+    file.save(file_path)
+
+    # 👇 load student DB
     db_path = load_students_from_db(cursor)
 
-    # process video using DB images
-    present_students = process_video(video_path, db_path)
+    # 🎯 Detect type (image or video)
+    ext = file.filename.lower()
+
+    if ext.endswith((".mp4", ".avi", ".mov")):
+        present_students = process_video(file_path, db_path)
+    else:
+        present_students = process_class_image(file_path, db_path)
 
     today = date.today()
 
@@ -399,7 +408,7 @@ def mark_attendance():
                 (student_name, date, subject, lecture_type, start_time, end_time, video_path) 
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
                 """,
-                (student, today, subject, lecture_type, start_time, end_time, video_path)
+                (student, today, subject, lecture_type, start_time, end_time, file_path)
             )
 
     conn.commit()
@@ -407,7 +416,6 @@ def mark_attendance():
     return jsonify({
         "present": present_students
     })
-
 
 if __name__ == "__main__":
     app.run(debug=True)

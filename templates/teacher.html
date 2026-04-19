@@ -175,7 +175,7 @@
     <div class="card">
         <h3>📸 Mark Attendance</h3>
 
-        <input type="file" id="videoInput" accept="video/*">
+        <input type="file" id="fileInput" accept="image/*,video/*">
 
         <input type="text" id="subject" placeholder="Enter Subject">
         <input type="time" id="startTime">
@@ -186,7 +186,7 @@
             <option value="Extra">Extra Lecture</option>
         </select>
 
-        <button onclick="uploadImage()">Upload Video & Mark Attendance</button>
+        <button onclick="uploadImage()">Upload file & Mark Attendance</button>
     </div>
 
     <!-- 📋 RESULT -->
@@ -210,12 +210,14 @@ async function uploadImage() {
     let endTime = document.getElementById("endTime").value;
 
     if (!fileInput.files[0]) {
-        alert("Please upload a video!");
+        alert("Please upload a file!");
         return;
     }
 
     let formData = new FormData();
-    formData.append("video", fileInput.files[0]);
+    let fileInput = document.getElementById("fileInput");
+
+    formData.append("file", fileInput.files[0]);
     formData.append("subject", subject);
     formData.append("lectureType", lectureType);
     formData.append("startTime", startTime);
