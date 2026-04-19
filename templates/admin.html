@@ -32,16 +32,16 @@
             <br><br>
 
             <!-- 💰 PAYMENT SCREENSHOT -->
-            {% if ad[8] %}
+            {% if ad[10] %}
                 <p>Payment Proof:</p>
-                <img src="/{{ ad[8] }}" width="200">
+                <img src="/{{ ad[10] }}" width="200">
             {% else %}
                 <p>No payment yet</p>
             {% endif %}
 
             <!-- ❌ REJECTION MESSAGE -->
             {% if ad[6] == "rejected" %}
-                <p style="color:red;">❌ Rejected: {{ ad[9] }}</p>
+                <p style="color:red;">❌ Rejected: {{ ad[11] }}</p>
             {% endif %}
 
             <br>
