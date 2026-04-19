@@ -7,6 +7,13 @@
 <body style="background:#0f172a; color:white; font-family:sans-serif;">
 
 <h2>Admin Dashboard</h2>
+<div class="navbar">
+    <h3>SmartAttend</h3>
+    <div class="nav-links">
+        <a href="/admin">Home</a>
+        <a href="/logout">Logout</a>
+    </div>
+</div>
 
 {% if ads|length == 0 %}
     <p>No Ads Found</p>
@@ -23,6 +30,21 @@
             <img src="/{{ ad[4] }}" width="200">
 
             <br><br>
+
+            <!-- 💰 PAYMENT SCREENSHOT -->
+            {% if ad[8] %}
+                <p>Payment Proof:</p>
+                <img src="/{{ ad[8] }}" width="200">
+            {% else %}
+                <p>No payment yet</p>
+            {% endif %}
+
+            <!-- ❌ REJECTION MESSAGE -->
+            {% if ad[6] == "rejected" %}
+                <p style="color:red;">❌ Rejected: {{ ad[9] }}</p>
+            {% endif %}
+
+            <br>
 
             <a href="/accept_ad/{{ ad[0] }}">✅ Accept</a> |
             <a href="/reject_ad/{{ ad[0] }}">❌ Reject</a> |

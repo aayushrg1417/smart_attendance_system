@@ -82,8 +82,7 @@
 <div class="navbar">
     <h3>SmartAttend</h3>
     <div class="nav-links">
-        <a href="/">Home</a>
-        <a href="/student/{{ session['user'] }}">Dashboard</a>
+        <a href="/ads">Home</a>
         <a href="/logout">Logout</a>
     </div>
 </div>
@@ -121,6 +120,96 @@
             <button type="submit">Submit Request</button>
 
         </form>
+    </div>
+    <div class="card">
+        <h2>📜 My Ad Requests</h2>
+
+        {% if my_ads %}
+        
+            {% for ad in my_ads %}
+
+                <div style="margin-bottom:20px; border-bottom:1px solid gray; padding-bottom:10px;">
+
+                    <!-- Ad Image -->
+                    <img src="/{{ ad[4] }}" height="100">
+
+                    <p><b>Duration:</b> {{ ad[5] }} days</p>
+                    <p><b>Status:</b> {{ ad[6] }}</p>
+
+                    <!-- ✅ ACCEPTED → SHOW QR -->
+                    {% if ad[6] == "accepted" %}
+                        <p>💳 Scan & Pay:</p>
+                        <img src="/{{ ad[10] }}" height="150">
+                    {% endif %}
+
+                    <!-- ❌ REJECTED -->
+                    {% if ad[6] == "rejected" %}
+                        <p style="color:red;">❌ Rejected</p>
+                    {% endif %}
+
+                    <!-- 💰 PAYMENT SCREENSHOT -->
+                    {% if ad[6] == "accepted" %}
+                        <form method="POST" action="/upload_payment/{{ ad[0] }}" enctype="multipart/form-data">
+                            <input type="file" name="payment" required>
+                            <button type="submit">Upload Payment Screenshot</button>
+                        </form>
+                    {% endif %}
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+            <p>No requests yet</p>
+        {% endif %}
+    </div>
+    <div class="card">
+        <h2>📜 Your Ad Requests</h2>
+
+        {% if ads|length == 0 %}
+            <p>No requests yet</p>
+        {% else %}
+
+            {% for ad in ads %}
+            <div style="background:#1e293b; padding:15px; margin-top:10px; border-radius:10px;">
+
+                <img src="/{{ ad[4] }}" height="80"><br><br>
+
+                <p><b>Status:</b> {{ ad[6] }}</p>
+                <p><b>Duration:</b> {{ ad[5] }} days</p>
+
+                <!-- 🟡 ACCEPTED → SHOW QR -->
+                {% if ad[6] == "accepted" %}
+                    <p style="color:yellow;">✔ Accepted - Please Pay</p>
+
+                    <img src="/static/qr/payment_qr.png" height="150"><br><br>
+
+                    <form action="/upload_payment/{{ ad[0] }}" method="POST" enctype="multipart/form-data">
+                        <input type="file" name="payment_ss" required>
+                        <button>Upload Payment Screenshot</button>
+                    </form>
+                {% endif %}
+
+                <!-- 🔴 REJECTED -->
+                {% if ad[6] == "rejected" %}
+                    <p style="color:red;">❌ Rejected by Admin</p>
+                {% endif %}
+
+                <!-- 🟢 PUBLISHED -->
+                {% if ad[6] == "published" %}
+                    <p style="color:lightgreen;">🚀 Your Ad is LIVE</p>
+                {% endif %}
+
+                <!-- 🧾 PAYMENT PROOF -->
+                {% if ad[8] %}
+                    <p>Payment Submitted:</p>
+                    <img src="/{{ ad[8] }}" height="100">
+                {% endif %}
+
+            </div>
+            {% endfor %}
+
+        {% endif %}
     </div>
 
 </div>

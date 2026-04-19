@@ -1,6 +1,7 @@
+from engine.face_engine import load_students_from_db
+from engine.video_engine import process_video
 from flask import Flask, render_template, request, jsonify
 from flask import session, redirect, url_for
-from engine.video_engine import process_video
 from database.db import conn, cursor
 from datetime import date
 import os
@@ -101,7 +102,7 @@ def ads_page():
     username = session["user"]
 
     cursor.execute(
-        "SELECT * FROM ads WHERE username=%s",
+        "SELECT * FROM ads WHERE username=%s ORDER BY id DESC",
         (username,)
     )
     my_ads = cursor.fetchall()
@@ -209,16 +210,38 @@ def admin_dashboard():
 @app.route("/accept_ad/<int:id>")
 def accept_ad(id):
 
-    if "admin" not in session:
-        return redirect("/")
+    qr_path = "static/qr/payment_qr.png"  # your uploaded QR
 
     cursor.execute(
-        "UPDATE ads SET status='accepted' WHERE id=%s",
-        (id,)
+        "UPDATE ads SET status='accepted', qr_path=%s WHERE id=%s",
+        (qr_path, id)
     )
     conn.commit()
 
     return redirect("/admin/dashboard")
+
+#PAYMENT
+@app.route("/upload_payment/<int:id>", methods=["POST"])
+def upload_payment(id):
+
+    if "user" not in session:
+        return redirect("/")
+
+    file = request.files["payment_ss"]
+
+    if not os.path.exists("static/payments"):
+        os.makedirs("static/payments")
+
+    path = "static/payments/" + file.filename
+    file.save(path)
+
+    cursor.execute(
+        "UPDATE ads SET payment_ss=%s WHERE id=%s",
+        (path, id)
+    )
+    conn.commit()
+
+    return redirect("/ads")
 
 
 # 👉 Reject Ad
@@ -229,7 +252,7 @@ def reject_ad(id):
         return redirect("/")
 
     cursor.execute(
-        "UPDATE ads SET status='rejected' WHERE id=%s",
+        "UPDATE ads SET status='rejected', rejection_reason='Rejected by admin' WHERE id=%s",
         (id,)
     )
     conn.commit()
@@ -350,8 +373,11 @@ def mark_attendance():
     video_path = f"videos/{file.filename}"
     file.save(video_path)
 
-    # 🔥 process video
-    present_students = process_video(video_path)
+    # load images from DB
+    db_path = load_students_from_db(cursor)
+
+    # process video using DB images
+    present_students = process_video(video_path, db_path)
 
     today = date.today()
 
