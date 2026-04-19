@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ads & Tokens</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI';
+            background: #0f172a;
+            color: white;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 30px;
+            background: #020617;
+        }
+
+        .nav-links a {
+            margin-left: 20px;
+            color: #94a3b8;
+            text-decoration: none;
+        }
+
+        .nav-links a:hover {
+            color: #38bdf8;
+        }
+
+        .container {
+            padding: 40px;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .card {
+            background: #020617;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: none;
+            background: #1e293b;
+            color: white;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: #38bdf8;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .price-box {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .price {
+            flex: 1;
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="navbar">
+    <h3>SmartAttend</h3>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/student/{{ session['user'] }}">Dashboard</a>
+        <a href="/logout">Logout</a>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- 💰 PRICING -->
+    <div class="card">
+        <h2>💰 Ad Pricing</h2>
+
+        <div class="price-box">
+            <div class="price">1 Day<br>₹10</div>
+            <div class="price">3 Days<br>₹25</div>
+            <div class="price">7 Days<br>₹50</div>
+            <div class="price">14 Days<br>₹90</div>
+        </div>
+    </div>
+
+    <!-- 🎟️ TOKEN -->
+    <div class="card">
+        <h2>🎟️ Raise Ad Token</h2>
+
+
+        <form method="POST" action="/raise_token" enctype="multipart/form-data">
+
+            <input type="file" name="image" required>
+
+            <select name="duration" required>
+                <option value="1">1 Day</option>
+                <option value="3">3 Days</option>
+                <option value="7">7 Days</option>
+                <option value="14">14 Days</option>
+            </select>
+
+            <button type="submit">Submit Request</button>
+
+        </form>
+    </div>
+
+</div>
+
+<script>
+async function raiseToken() {
+
+    let file = document.getElementById("adImage").files[0];
+    let duration = document.getElementById("duration").value;
+
+    if (!file) {
+        alert("Upload image first!");
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append("image", file);
+    formData.append("duration", duration);
+
+    let res = await fetch("/raise_token", {
+        method: "POST",
+        body: formData
+    });
+
+    let text = await res.text();   // 👈 IMPORTANT
+
+    console.log("SERVER RESPONSE:", text);  // 👈 DEBUG
+    alert(text);   // 👈 SHOW ERROR OR SUCCESS
+}
+</script>
+
+</body>
+</html>

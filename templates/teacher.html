@@ -126,13 +126,22 @@
 <body>
 
 <div class="ads-box">
-    📸 Upload class video to mark attendance instantly 🚀
+
+    {% if ads %}
+        {% for ad in ads %}
+            <img src="/{{ ad[0] }}" height="80" style="margin:5px; border-radius:10px;">
+        {% endfor %}
+    {% else %}
+        📢 Upload attendance videos daily 📚
+    {% endif %}
+
 </div>
 
 <div class="navbar">
     <h3>SmartAttend</h3>
     <div class="nav-links">
         <a href="/">Home</a>
+        <a href="/ads">Ads</a>
         <a href="/logout">Logout</a>
     </div>
 </div>
@@ -143,10 +152,10 @@
     <div class="card">
         <div class="profile">
 
-            {% if user and user[5] %}
-                <img src="/{{ user[5] }}">
+            {% if user and user[6] %}
+                <img src="/{{ user[6] }}">
             {% else %}
-                <div class="profile-placeholder">👨‍🏫</div>
+            <div class="profile-placeholder">👨‍🏫</div>
             {% endif %}
 
             <div class="details">
@@ -156,6 +165,7 @@
                 <p><b>Email:</b> {{ user[2] if user else "Not set" }}</p>
                 <p><b>Phone:</b> {{ user[3] if user else "Not set" }}</p>
                 <p><b>Department:</b> {{ user[4] if user else "Not set" }}</p>
+                <p><b>Division:</b> {{ user[5] if user else "Not set" }}</p>
             </div>
 
         </div>

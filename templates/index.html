@@ -66,10 +66,20 @@
     <!-- REGISTER -->
     <div id="registerBox" style="display:none;">
         <h2>Register</h2>
-        <form method="POST" action="/register">
-            <input name="name" placeholder="Name" required>
+
+        <form method="POST" action="/register" enctype="multipart/form-data">
+
+            <input name="name" placeholder="Full Name" required>
             <input name="username" placeholder="Username" required>
             <input name="password" type="password" placeholder="Password" required>
+
+            <input name="email" type="email" placeholder="Email" required>
+            <input name="phone" placeholder="Phone Number" required>
+
+            <input name="department" placeholder="Department (e.g. AIML, IT)" required>
+            <input name="division" placeholder="Division (e.g. A, B, C)" required>
+
+            <input type="file" name="profile_img" accept="image/*">
 
             <select name="role">
                 <option value="teacher">Teacher</option>
@@ -77,6 +87,7 @@
             </select>
 
             <button>Register</button>
+
         </form>
 
         <div class="toggle" onclick="toggle()">Back to login</div>

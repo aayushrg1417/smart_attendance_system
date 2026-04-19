@@ -151,7 +151,15 @@
 <body>
 
 <div class="ads-box">
-    📊 Stay above 75% attendance to avoid trouble 🚀
+
+    {% if ads %}
+        {% for ad in ads %}
+            <img src="/{{ ad[0] }}" height="80" style="margin:5px; border-radius:10px;">
+        {% endfor %}
+    {% else %}
+        📊 Stay above 75% attendance to avoid trouble 🚀
+    {% endif %}
+
 </div>
 
 <div class="navbar">
@@ -159,6 +167,7 @@
     <div class="nav-links">
         <a href="/">Home</a>
         <a href="/details">Personal Details</a>
+        <a href="/ads">Ads</a>
         <a href="/logout">Logout</a>
     </div>
 </div>
@@ -169,8 +178,8 @@
     <div class="card">
         <div class="profile">
 
-            {% if user and user[5] %}
-                <img src="/{{ user[5] }}">
+            {% if user and user[6] %}
+                <img src="/{{ user[6] }}">
             {% else %}
                 <div class="profile-placeholder">👤</div>
             {% endif %}
@@ -182,6 +191,7 @@
                 <p><b>Email:</b> {{ user[2] if user else "Not set" }}</p>
                 <p><b>Phone:</b> {{ user[3] if user else "Not set" }}</p>
                 <p><b>Department:</b> {{ user[4] if user else "Not set" }}</p>
+                <p><b>Division:</b> {{ user[5] if user else "Not set" }}</p>
 
                 <p id="date"></p>
                 <span id="statusBadge" class="badge"></span>
@@ -227,12 +237,6 @@
         {% endif %}
     </div>
 
-    <!-- 📝 NOTES -->
-    <div class="card">
-        <h3>📝 Personal Notes</h3>
-        <textarea id="notes"></textarea>
-        <button onclick="saveNotes()">Save Notes</button>
-    </div>
 
 </div>
 
@@ -262,14 +266,7 @@
         badge.classList.add("low");
     }
 
-    // 📝 Notes
-    let notesField = document.getElementById("notes");
-    notesField.value = localStorage.getItem("notes") || "";
 
-    function saveNotes() {
-        localStorage.setItem("notes", notesField.value);
-        alert("Notes saved!");
-    }
 </script>
 
 </body>
