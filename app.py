@@ -4,6 +4,8 @@ from flask import Flask, render_template, request, jsonify
 from flask import session, redirect, url_for
 from database.db import conn, cursor
 from datetime import date
+from deepface import DeepFace
+import json
 import os
 
 app = Flask(__name__)
@@ -306,12 +308,28 @@ def register():
         img_path = "static/uploads/" + filename
         file.save(img_path)
 
+        # ✅ ADD THIS CODE RIGHT HERE
+        embedding_str = None
+
+        if role == "student":
+            embedding = DeepFace.represent(
+                img_path=img_path,
+                model_name="ArcFace",
+                enforce_detection=False
+            )[0]["embedding"]
+
+            embedding_str = json.dumps(embedding)
+
     # 💾 INSERT INTO DB
     cursor.execute("""
         INSERT INTO users 
-        (name, username, password, role, email, phone, department, division, profile_img)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-    """, (name, username, password, role, email, phone, department, division, img_path))
+        (name, username, password, role, email, phone, department, division, profile_img, face_encoding)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    """, (
+        name, username, password, role,
+        email, phone, department, division,
+        img_path, embedding_str
+    ))
 
     conn.commit()
 

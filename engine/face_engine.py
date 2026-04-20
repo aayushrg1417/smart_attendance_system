@@ -37,7 +37,7 @@ def process_class_image(image_path, db_path):
 
     results = DeepFace.find(
         img_path=image_path,
-        db_path=STUDENT_DB,
+        db_path=db_path,
         model_name="ArcFace",
         detector_backend="retinaface",
         enforce_detection=False
